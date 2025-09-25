@@ -1,4 +1,5 @@
 import express from "express";
+import { body } from "express-validator";
 import { authMiddleware, requireRole } from "../middlewares/auth.js";
 import purchaseController from "../controllers/purchaseController.js";
 
@@ -48,6 +49,20 @@ router.post(
   "/",
   authMiddleware,
   requireRole("cliente"),
+  body("clientId")
+    .isInt({ min: 1 })
+    .withMessage(
+      "El ID del cliente es requerido y debe ser un número positivo"
+    ),
+  body("items")
+    .isArray({ min: 1 })
+    .withMessage("Se requiere al menos un producto en la compra"),
+  body("items.*.productId")
+    .isInt({ min: 1 })
+    .withMessage("Cada producto debe tener un ID válido"),
+  body("items.*.quantity")
+    .isInt({ min: 1 })
+    .withMessage("La cantidad debe ser un número entero positivo"),
   purchaseController.createPurchase
 );
 
