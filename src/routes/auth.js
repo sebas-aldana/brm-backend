@@ -56,4 +56,8 @@ router.post(
   login
 );
 
+router.get("/", (req, res) => {
+  res.send("Bienvenido al servidor");
+});
+
 export default router;
