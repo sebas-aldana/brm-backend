@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 import { sequelize } from "./models/index.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
-/* const purchaseRoutes = require("./routes/purchases");
-const errorHandler = require("./middlewares/errorHandler"); */
+import purchaseRoutes from "./routes/purchases.js";
+/*const errorHandler = require("./middlewares/errorHandler"); */
 
 dotenv.config();
 
@@ -16,35 +16,28 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-router.get("/", async (req, res) => {
-  try {
-    await sequelize.authenticate();
-    res.json({ status: "ok", db: "connected" });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ status: "error", db: "disconnected", error: err.message });
-  }
-});
-
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
-/*app.use("/purchases", purchaseRoutes); */
+app.use("/purchases", purchaseRoutes);
 
 /* app.use(errorHandler); */
 
 const PORT = process.env.PORT || 3000;
 
-async function start() {
-  try {
-    await sequelize.authenticate();
-    console.log("DB connected");
-    await sequelize.sync();
-    app.listen(PORT, () => console.log(`Server running on ${PORT}`));
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
+if (process.env.NODE_ENV !== "test") {
+  (async () => {
+    try {
+      await sequelize.authenticate();
+      console.log("Database connected");
+      await sequelize.sync();
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error("Unable to start server:", error);
+      process.exit(1);
+    }
+  })();
 }
 
-start();
+export default app;

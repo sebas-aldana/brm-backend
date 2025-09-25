@@ -19,4 +19,4 @@ PurchaseDetail.belongsTo(Purchase, { foreignKey: "purchaseId" });
 Product.hasMany(PurchaseDetail, { foreignKey: "productId" });
 PurchaseDetail.belongsTo(Product, { foreignKey: "productId" });
 
-export { sequelize, User, Product };
+export { sequelize, User, Product, Purchase, PurchaseDetail };
