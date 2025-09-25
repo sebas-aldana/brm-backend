@@ -1,12 +1,16 @@
 import express from "express";
+import path from "path";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
-
+import { fileURLToPath } from "url";
 import { sequelize } from "./models/index.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
 import purchaseRoutes from "./routes/purchases.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -18,6 +22,9 @@ app.use(morgan("dev"));
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/purchases", purchaseRoutes);
+
+const docsPath = path.join(process.cwd(), "docs");
+app.use("/docs", express.static(docsPath));
 
 const PORT = process.env.PORT || 3000;
 

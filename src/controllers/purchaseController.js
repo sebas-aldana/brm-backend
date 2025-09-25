@@ -12,27 +12,27 @@ async function createPurchase(req, res) {
     let total = 0;
     const updatedProducts = [];
 
-    for (const it of items) {
-      if (!it.productId || !it.quantity || it.quantity <= 0) {
+    for (const item of items) {
+      if (!item.productId || !item.quantity || item.quantity <= 0) {
         throw new Error("Cada item debe tener productId y quantity > 0");
       }
 
-      const prod = await Product.findByPk(it.productId, {
+      const product = await Product.findByPk(item.productId, {
         transaction: transaction,
         lock: transaction.LOCK.UPDATE,
       });
-      if (!prod) throw new Error(`Producto ${it.productId} no encontrado`);
-      if (prod.cantidadDisponible < it.quantity) {
-        throw new Error(`Stock insuficiente para producto ${prod.id}`);
+      if (!product) throw new Error(`Producto ${item.productId} no encontrado`);
+      if (product.availableQuantity < item.quantity) {
+        throw new Error(`Stock insuficiente para producto ${product.id}`);
       }
 
-      total += parseFloat(prod.precio) * it.quantity;
+      total += parseFloat(product.price) * item.quantity;
 
-      prod.cantidadDisponible -= it.quantity;
+      product.availableQuantity -= item.quantity;
 
-      await prod.save({ transaction: transaction });
+      await product.save({ transaction: transaction });
 
-      updatedProducts.push({ prod, quantity: it.quantity });
+      updatedProducts.push({ product, quantity: item.quantity });
     }
 
     const purchase = await Purchase.create(
@@ -40,13 +40,13 @@ async function createPurchase(req, res) {
       { transaction: transaction }
     );
 
-    for (const { prod, quantity } of updatedProducts) {
+    for (const { product, quantity } of updatedProducts) {
       await PurchaseDetail.create(
         {
           purchaseId: purchase.id,
-          productId: prod.id,
+          productId: product.id,
           quantity,
-          priceAtPurchase: prod.price,
+          priceAtPurchase: product.price,
         },
         { transaction: transaction }
       );

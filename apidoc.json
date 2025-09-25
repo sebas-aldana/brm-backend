@@ -1,0 +1,20 @@
+{
+  "name": "BRM Backend API",
+  "version": "1.0.0",
+  "description": "API documentation for BRM Backend",
+  "title": "BRM Backend API",
+  "url" : "https://api.example.com/v1",
+  "sampleUrl": "http://localhost:3000",
+  "header": {
+    "title": "Introduction",
+    "filename": "header.md"
+  },
+  "footer": {
+    "title": "More Info",
+    "filename": "footer.md"
+  },
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  }
+}

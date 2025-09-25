@@ -3,11 +3,11 @@ export default (sequelize, DataTypes) => {
     "Product",
     {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      lote: { type: DataTypes.STRING, allowNull: false },
-      nombre: { type: DataTypes.STRING, allowNull: false },
-      precio: { type: DataTypes.FLOAT, allowNull: false },
-      cantidadDisponible: { type: DataTypes.INTEGER, allowNull: false },
-      fechaIngreso: { type: DataTypes.DATE, allowNull: false },
+      batch: { type: DataTypes.STRING, allowNull: false },
+      name: { type: DataTypes.STRING, allowNull: false },
+      price: { type: DataTypes.FLOAT, allowNull: false },
+      availableQuantity: { type: DataTypes.INTEGER, allowNull: false },
+      entryDate: { type: DataTypes.DATE, allowNull: false },
     },
     { tableName: "products" }
   );
