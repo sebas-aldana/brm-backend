@@ -2,7 +2,7 @@ import { Purchase, PurchaseDetail, Product } from "../models/index.js";
 import { sequelize } from "../models/index.js";
 
 async function createPurchase(req, res) {
-  const t = await sequelize.transaction();
+  const transaction = await sequelize.transaction();
   try {
     const { items } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -18,8 +18,8 @@ async function createPurchase(req, res) {
       }
 
       const prod = await Product.findByPk(it.productId, {
-        transaction: t,
-        lock: t.LOCK.UPDATE,
+        transaction: transaction,
+        lock: transaction.LOCK.UPDATE,
       });
       if (!prod) throw new Error(`Producto ${it.productId} no encontrado`);
       if (prod.cantidadDisponible < it.quantity) {
@@ -30,21 +30,16 @@ async function createPurchase(req, res) {
 
       prod.cantidadDisponible -= it.quantity;
 
-      await prod.save({ transaction: t });
+      await prod.save({ transaction: transaction });
 
-      // Guardamos referencia para los detalles
       updatedProducts.push({ prod, quantity: it.quantity });
     }
 
-    console.log(total);
-
-    // Crear compra
     const purchase = await Purchase.create(
       { clientId: req.body.clientId, total },
-      { transaction: t }
+      { transaction: transaction }
     );
 
-    // Crear detalles
     for (const { prod, quantity } of updatedProducts) {
       await PurchaseDetail.create(
         {
@@ -53,18 +48,18 @@ async function createPurchase(req, res) {
           quantity,
           priceAtPurchase: prod.price,
         },
-        { transaction: t }
+        { transaction: transaction }
       );
     }
 
-    await t.commit();
+    await transaction.commit();
 
     const invoice = await Purchase.findByPk(purchase.id, {
       include: [{ model: PurchaseDetail, include: [Product] }],
     });
     return res.status(201).json({ purchase: invoice });
   } catch (err) {
-    await t.rollback();
+    await transaction.rollback();
     return res.status(400).json({ message: err.message });
   }
 }
